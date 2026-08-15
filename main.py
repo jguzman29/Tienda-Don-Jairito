@@ -2,7 +2,7 @@ from estructuras import inicializar_bd, SessionLocal, Cliente, Producto, Venta, 
 
 def ejecutar_tienda():
     if not inicializar_bd():
-        print("No se pudo conectar a la BD. Revisa las credenciales.")
+        print("Error al conectar con la Base de Datos MySQL.")
         return
 
     while True:
@@ -11,7 +11,7 @@ def ejecutar_tienda():
         print("      BIENVENIDO A LA TIENDA DE DON JAIRITO")
         print("="*40)
 
-
+        # 1. Registro / Búsqueda de cliente en MySQL (Pide CÉDULA primero)
         print("\n--- DATOS DEL CLIENTE ---")
         cedula_in = input("Cédula / Documento: ").strip()
         cliente = session.query(Cliente).filter_by(cedula=cedula_in).first()
@@ -24,12 +24,14 @@ def ejecutar_tienda():
             session.commit()
             print("-> Cliente registrado exitosamente en la BD.")
         else:
-            print(f"-> Cliente encontrado: {cliente.nombre}")
+            print(f"-> Cliente existente encontrado: {cliente.nombre}")
 
         carro = {}
 
+        # 2. Agregar Productos
+        print("\nEscribe 'Listo' cuando termines de agregar productos.")
         while True:
-            prod_input = input("\nIngrese producto (o 'Listo' para finalizar): ").strip().title()
+            prod_input = input("\nIngrese producto (o 'Listo'): ").strip().title()
             if prod_input == "Listo":
                 break
 
@@ -52,8 +54,10 @@ def ejecutar_tienda():
             else:
                 print("Ese producto no está en el inventario.")
 
-       
-        if carro:
+        # 3. Facturación y Guardado en MySQL
+        if not carro:
+            print("\nNo llevó productos. Vuelva pronto.")
+        else:
             print("\n" + "="*15 + " TIQUETE FINAL " + "="*15)
             print(f"CLIENTE  : {cliente.nombre}")
             print(f"CÉDULA   : {cliente.cedula}")
@@ -99,7 +103,7 @@ def ejecutar_tienda():
                         vuelto = pago - total_compra
                         print(f"PAGO RECIBIDO:        ${pago:>10,}")
                         print(f"CAMBIO / DEVOLUCIÓN:  ${vuelto:>10,}")
-                        print("\n¡Gracias por su compra! Venta guardada en BD.")
+                        print("\n¡Gracias por su compra! Venta registrada en MySQL.")
                 except ValueError:
                     print("Ingrese un número válido.")
 
